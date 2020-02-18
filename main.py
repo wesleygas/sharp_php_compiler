@@ -23,8 +23,6 @@ for char in code:
     if(char in "+-"):
         signs.append(char)
 
-print(f"Numbers: {numbers} signs: {signs}")
-
 if((len(numbers) - 1) != len(signs)):
     raise Exception("N da pra fazer isso né, amigão. Os sinais vêm ENTRE os números")
 
@@ -37,4 +35,4 @@ for i in range(len(signs)):
     elif(signs[i] == "-"):
         result-= int(numbers[i+1])
 
-print(f"O resultado de:\n{code}\n é\n{result}")
+print(result)
