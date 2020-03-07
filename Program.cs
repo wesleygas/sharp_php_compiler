@@ -12,6 +12,8 @@ namespace compylador
             string code = args[0];
             if (string.IsNullOrWhiteSpace(code)) throw new RaulException("Não pode ter nada vazio...Espaços contam como vazio, se você não entendeu.");
             
+            code = Preproc.Run(code);
+
             int result = Parser.run(code);
             Console.WriteLine(result);
             return 0;
