@@ -5,8 +5,10 @@ public enum TokenTypes{
     INT,
     PLUS,
     MINUS,
-    MULT,
-    DIV,
+    STAR,
+    SLASH,
+    LPAR,
+    RPAR,
     EOF
 }
 

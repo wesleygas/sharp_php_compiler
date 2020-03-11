@@ -3,32 +3,50 @@ using System;
 static class Parser {
     static Tokenizer tokens;
 
-    static int ParseTerm(){
-        if(tokens.Current.Type == TokenTypes.INT){
-            int result = tokens.Current.Value;
-            tokens.selectNext();
-            while(tokens.currentIsTerm()){
-                if(tokens.Current.Type == TokenTypes.MULT){
-                    tokens.selectNext();
-                    if(tokens.Current.Type == TokenTypes.INT){
-                        result*=tokens.Current.Value;
-                    }else{
-                        throw new RaulException($"Sinal '+' inesperado na posição {tokens.Position}");
-                    }
-                }else if(tokens.Current.Type == TokenTypes.DIV){
-                    tokens.selectNext();
-                    if(tokens.Current.Type == TokenTypes.INT){
-                        result /= tokens.Current.Value;
-                    }else{
-                        throw new RaulException($"Sinal '-' inesperado na posição {tokens.Position}");
-                    }
-                }
+    static int ParseFactor(){
+        int value = 0;
+        switch(tokens.Current.Type){
+            case TokenTypes.INT:{
+                value = tokens.Current.Value;
                 tokens.selectNext();
+                return value;
             }
-            return result;
-        }else{
-            throw new RaulException("Nao se pode comecar com sinais");
+            case TokenTypes.PLUS:{
+                tokens.selectNext();
+                value = ParseFactor();
+                return value;
+            }
+            case TokenTypes.MINUS:{
+                tokens.selectNext();
+                value = -ParseFactor();
+                return value;
+            }
+            case TokenTypes.LPAR:{
+                tokens.selectNext();
+                value = parseExpression();
+                if(tokens.Current.Type == TokenTypes.RPAR){
+                    tokens.selectNext();
+                    return value;
+                } 
+                else throw new RaulException($"Expected ')' at pos {tokens.Position}");
+            }
+            default:{
+                throw new RaulException($"Unexpected symbol at {tokens.Position}");
+            }
         }
+    }
+    static int ParseTerm(){
+        int res = ParseFactor();
+        while(tokens.currentIsTerm()){
+            if(tokens.Current.Type == TokenTypes.STAR){
+                tokens.selectNext();
+                res*= ParseFactor();
+            }else if(tokens.Current.Type == TokenTypes.SLASH){
+                tokens.selectNext();
+                res/= ParseFactor();
+            }
+        }
+        return res;
     }
     static int parseExpression(){
         int res = ParseTerm();

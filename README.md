@@ -1,12 +1,16 @@
-# compylador
+#### compylador
 
 Para utilizar o compilador, passe a string como parâmetro único para o executável  executaveis/{windows|linux}/compylador.exe
 
+![Diagrama_Sintatico](diagrama_sintatico/calculadora_basica.png)
 
 #### EBNF
+
 '''
-EXPRESSION = NUMBER, {("+" | "-" | "\*" | "/" ), NUMBER} ;
-NUMBER = DIGIT, {DIGIT} ;
-DIGIT = 0 | 1 | ... | 9 ;
+EXPRESSION = TERM, { ("+" | "-"), TERM } ;
+
+TERM = FACTOR, { ("*" | "/"), FACTOR } ;
+
+FACTOR = ("+" | "-") FACTOR | "(" EXPRESSION ")" | number ;
 
 '''

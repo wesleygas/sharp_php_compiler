@@ -35,15 +35,26 @@ class Tokenizer {
                 return;
             }
             case '*':{
-                current = new Token(TokenTypes.MULT, 0);
+                current = new Token(TokenTypes.STAR, 0);
                 position++;
                 return;
             }
             case '/':{
-                current = new Token(TokenTypes.DIV, 0);
+                current = new Token(TokenTypes.SLASH, 0);
                 position++;
                 return;
             }
+            case '(':{
+                current = new Token(TokenTypes.LPAR, 0);
+                position++;
+                return;
+            }
+            case ')':{
+                current = new Token(TokenTypes.RPAR, 0);
+                position++;
+                return;
+            }
+            //Parseia o numero. Vai dar ruim quando chegar float
             default:{
                 if(Char.IsDigit(origin[cursor])){
                     while(position < origin.Length){
@@ -95,8 +106,8 @@ class Tokenizer {
 
     public bool currentIsTerm(){
         switch(current.Type){
-            case TokenTypes.MULT:
-            case TokenTypes.DIV:
+            case TokenTypes.STAR:
+            case TokenTypes.SLASH:
             {
                 return true;
             }
