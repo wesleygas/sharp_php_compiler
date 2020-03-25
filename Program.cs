@@ -14,8 +14,8 @@ namespace compylador
             
             code = Preproc.Run(code);
 
-            int result = Parser.run(code);
-            Console.WriteLine(result);
+            Node root = Parser.run(code);
+            Console.WriteLine(root.Evaluate());
             return 0;
         }
     }
