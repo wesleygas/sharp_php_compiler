@@ -3,30 +3,31 @@ using System;
 static class Parser {
     static Tokenizer tokens;
 
-    static int ParseFactor(){
-        int value = 0;
+    static Node ParseFactor(){
+        int value;
+        Node node;
         switch(tokens.Current.Type){
             case TokenTypes.INT:{
                 value = tokens.Current.Value;
                 tokens.selectNext();
-                return value;
+                return new IntVal(value);
             }
             case TokenTypes.PLUS:{
                 tokens.selectNext();
-                value = ParseFactor();
-                return value;
+                node = ParseFactor();
+                return new UnOp('+', node);
             }
             case TokenTypes.MINUS:{
                 tokens.selectNext();
-                value = -ParseFactor();
-                return value;
+                node = ParseFactor();
+                return new UnOp('-', node);
             }
             case TokenTypes.LPAR:{
                 tokens.selectNext();
-                value = parseExpression();
+                node = parseExpression();
                 if(tokens.Current.Type == TokenTypes.RPAR){
                     tokens.selectNext();
-                    return value;
+                    return node;
                 } 
                 else throw new RaulException($"Expected ')' at pos {tokens.Position}");
             }
@@ -35,40 +36,46 @@ static class Parser {
             }
         }
     }
-    static int ParseTerm(){
-        int res = ParseFactor();
+    static Node ParseTerm(){
+        Node res = ParseFactor();
+        Node N2 = null;
         while(tokens.currentIsTerm()){
             if(tokens.Current.Type == TokenTypes.STAR){
                 tokens.selectNext();
-                res*= ParseFactor();
+                N2 = ParseTerm();
+                res = new BinOp('*', res, N2);
             }else if(tokens.Current.Type == TokenTypes.SLASH){
                 tokens.selectNext();
-                res/= ParseFactor();
+                N2 = ParseTerm();
+                res = new BinOp('/', res, N2);
             }
         }
         return res;
     }
-    static int parseExpression(){
-        int res = ParseTerm();
+    static Node parseExpression(){
+        Node res = ParseTerm();
+        Node N2 = null;
         while(tokens.currentIsSign()){
             if(tokens.Current.Type == TokenTypes.PLUS){
                 tokens.selectNext();
-                res+= ParseTerm();
+                N2 = ParseTerm();
+                res = new BinOp('+', res, N2);
             }else if(tokens.Current.Type == TokenTypes.MINUS){
                 tokens.selectNext();
-                res-= ParseTerm();
+                N2 = ParseTerm();
+                res = new BinOp('-', res, N2);
             }
         }
         return res;
     }
 
-    public static int run(string code){
+    public static Node run(string code){
         tokens = new Tokenizer(code, true);
-        int res = parseExpression();
+        Node root = parseExpression();
         if(tokens.Current.Type != TokenTypes.EOF){
             throw new RaulException($"Expected EOF at pos {tokens.Position}");
         }
-        return res;
+        return root;
     }
 
 }
