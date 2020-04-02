@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO; 
 
 namespace compylador
 {
@@ -7,15 +8,17 @@ namespace compylador
     {
         static int Main(string[] args)
         {
-            if (args.Length == 0) throw new RaulException("Não pode ter nada vazio");
-
-            string code = args[0];
+            if (args.Length == 0) throw new RaulException("Você precisa passar um arquivo");
+            Console.WriteLine(Directory.GetCurrentDirectory());
+            string code = File.ReadAllText(args[0]);
             if (string.IsNullOrWhiteSpace(code)) throw new RaulException("Não pode ter nada vazio...Espaços contam como vazio, se você não entendeu.");
             
             code = Preproc.Run(code);
 
-            Node root = Parser.run(code);
-            Console.WriteLine(root.Evaluate());
+            Node root = Parser.Run(code);
+            SymbolTable st = new SymbolTable();
+            string alo = root.Evaluate(st);
+            Console.WriteLine(alo);
             return 0;
         }
     }
