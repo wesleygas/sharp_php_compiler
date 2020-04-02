@@ -12,7 +12,7 @@ namespace compylador
             Console.WriteLine(Directory.GetCurrentDirectory());
             string code = File.ReadAllText(args[0]);
             if (string.IsNullOrWhiteSpace(code)) throw new RaulException("Não pode ter nada vazio...Espaços contam como vazio, se você não entendeu.");
-            
+
             code = Preproc.Run(code);
 
             Node root = Parser.Run(code);
