@@ -15,8 +15,10 @@ namespace compylador
 
             code = Preproc.Run(code);
 
-            Node root = Parser.run(code);
-            Console.WriteLine(root.Evaluate());
+            Node root = Parser.Run(code);
+            SymbolTable st = new SymbolTable();
+            string alo = root.Evaluate(st);
+            Console.WriteLine(alo);
             return 0;
         }
     }
