@@ -21,7 +21,7 @@ class Tokenizer {
     public int Position { get => position; set => position = value; }
 
     public void SelectNext(){
-        while(position < origin.Length && (origin[position] == ' ' || origin[position] == '\n' || origin[position] == '\r')) position++;
+        while(position < origin.Length && (origin[position] == ' ' || origin[position] == '\n' || origin[position] == '\r' || origin[position]=='\t')) position++;
         int cursor = position;
         if(cursor == origin.Length){
             current = new Token(TokenTypes.EOF, 0);
