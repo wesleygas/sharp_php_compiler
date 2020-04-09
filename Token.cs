@@ -16,6 +16,9 @@ public enum TokenTypes{
     IDEN,
     EQUAL,
     EQEQUAL,
+    NOT,
+    GREATER,
+    LESS,
     EOF
 }
 

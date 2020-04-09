@@ -91,6 +91,21 @@ class Tokenizer {
                 }
                 return;
             }
+            case '!':{
+                current = new Token(TokenTypes.NOT, 0);
+                position++;
+                return;
+            }
+            case '>':{
+                current = new Token(TokenTypes.GREATER, 0);
+                position++;
+                return;
+            }
+            case '<':{
+                current = new Token(TokenTypes.LESS, 0);
+                position++;
+                return;
+            }
             //Parseia o numero. Vai dar ruim quando chegar float
             default:{
                 if(Char.IsDigit(origin[cursor])){
@@ -148,5 +163,21 @@ class Tokenizer {
             }
         }
     }
+
+    public bool CurrentIsRel(){
+        switch(current.Type){
+            case TokenTypes.EQEQUAL:
+            case TokenTypes.GREATER:
+            case TokenTypes.LESS:
+            {
+                return true;
+            }
+            default:
+            {
+                return false;
+            }
+        }
+    }
+
 
 }
