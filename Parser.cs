@@ -167,7 +167,7 @@ static class Parser {
                 if(tokens.Current.Value != Keywords.AND) throw new RaulException($"Unexpected KEYWORD at pos {tokens.Position}");
                 tokens.SelectNext();
                 N2 = ParseFactor();
-                res = new BinOp(tokens.Current.Value.ToString(), res, N2);
+                res = new BinOp("AND", res, N2);
             }
         }
         return res;
@@ -175,7 +175,7 @@ static class Parser {
     static Node ParseExpression(){
         Node res = ParseTerm();
         Node N2 = null;
-        while(tokens.CurrentIsSign()){
+        while(tokens.CurrentIsExpr()){
             if(tokens.Current.Type == TokenTypes.PLUS){
                 tokens.SelectNext();
                 N2 = ParseTerm();
@@ -188,7 +188,7 @@ static class Parser {
                 if(tokens.Current.Value != Keywords.OR) throw new RaulException($"Unexpected KEYWORD at pos {tokens.Position}");
                 tokens.SelectNext();
                 N2 = ParseFactor();
-                res = new BinOp(tokens.Current.Value.ToString(), res, N2);
+                res = new BinOp("OR", res, N2);
             }
         }
         return res;
