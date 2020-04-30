@@ -136,12 +136,16 @@ class Tokenizer {
         }
     }
 
-    public bool CurrentIsSign(){
+    public bool CurrentIsExpr(){
         switch(current.Type){
             case TokenTypes.PLUS:
             case TokenTypes.MINUS:
             {
                 return true;
+            }
+            case TokenTypes.KEYWORD:
+            {
+                return current.Value == Keywords.OR;
             }
             default:
             {
@@ -156,6 +160,10 @@ class Tokenizer {
             case TokenTypes.SLASH:
             {
                 return true;
+            }
+            case TokenTypes.KEYWORD:
+            {
+                return current.Value == Keywords.AND;
             }
             default:
             {
