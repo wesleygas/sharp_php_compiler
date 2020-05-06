@@ -3,9 +3,11 @@ using System;
 public enum TokenTypes{
     None,
     INT,
+    STRING,
     PLUS,
     MINUS,
     STAR,
+    DOT,
     SEMI,
     SLASH,
     LPAR,

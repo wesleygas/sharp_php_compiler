@@ -8,5 +8,7 @@ public enum Keywords{
     IF,
     WHILE,
     ELSE,
-    READLINE
+    READLINE,
+    TRUE,
+    FALSE,
 }

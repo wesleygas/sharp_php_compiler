@@ -1,11 +1,29 @@
 using System;
 using System.Collections.Generic;
+
+public enum VarTypes{
+    INT,
+    BOOL,
+    STRING
+}
+class Symbol{
+    private dynamic value;
+    private VarTypes tipo;
+    public Symbol(dynamic value,VarTypes type){
+        this.Value = value;
+        this.Tipo = type;
+    }
+
+    public VarTypes Tipo { get => tipo; set => tipo = value; }
+    public dynamic Value { get => value; set => this.value = value; }
+}
+
 class SymbolTable
 {
-    private Dictionary<string,dynamic> table = new Dictionary<string,dynamic>();
+    private Dictionary<string,Symbol> table = new Dictionary<string,Symbol>();
 
     public dynamic Get(string name){
-        dynamic valor; 
+        Symbol valor; 
         if(table.TryGetValue(name, out valor)){
             return valor;
         }else{

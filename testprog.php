@@ -1,14 +1,10 @@
 <?php
 {
-    $a = 0;
-    $b = 1;
-    while (($a < 99999) and ($b ==1)){
-        $a = $a +1;
-        echo $a;
-        if ($a == 5){
-            $b = 0;
-        }
-    }
-    echo $a;
+    $x = 1;
+    $y = $x or True;
+    $z = "x: ";
+    echo $x + $y;
+    echo $z . $x;
+    echo $x * $z; /* ERROR */
 }
 ?>

@@ -9,6 +9,8 @@ class Tokenizer {
     const string identifier_regex = @"[\$][a-z]\w*";
     const string number_regex = @"\d+";
     const string keyword_regex = @"[a-zA-Z]+"; 
+
+    const string string_regex = "\"((?s).*?)\"";
     
     public Tokenizer(string Origin, bool feedIn){
         Position = 0;
@@ -69,6 +71,11 @@ class Tokenizer {
                 position++;
                 return;
             }
+            case '.':{
+                current = new Token(TokenTypes.DOT, 0);
+                position++;
+                return;
+            }
             case ';':{
                 current = new Token(TokenTypes.SEMI, 0);
                 position++;
@@ -125,6 +132,13 @@ class Tokenizer {
                 position++;
                 return;
             }
+            case '"':{
+                Regex rg = new Regex(string_regex);
+                string cache = rg.Match(origin,cursor).Groups[1].Value;
+                current = new Token(TokenTypes.STRING,cache);
+                position+=cache.Length+2;
+                return;
+            }
             //Parseia o numero. Vai dar ruim quando chegar float
             default:{
                 if(Char.IsDigit(origin[cursor])){
@@ -159,6 +173,7 @@ class Tokenizer {
         switch(current.Type){
             case TokenTypes.PLUS:
             case TokenTypes.MINUS:
+            case TokenTypes.DOT:
             {
                 return true;
             }
