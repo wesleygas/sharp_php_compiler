@@ -2,6 +2,16 @@ using System;
 
 static class Parser {
     static Tokenizer tokens;
+
+    static Node ParseProgram(){
+        Node node;
+        if(tokens.Current.Type != TokenTypes.START_PROG) throw new RaulException($"Expected '<?php' at {tokens.Position}");
+        tokens.SelectNext();
+        node = ParseCommand();  
+        if(tokens.Current.Type != TokenTypes.END_PROG) throw new RaulException($"Expected '?> at {tokens.Position}");
+        tokens.SelectNext();
+        return node;
+    }
     static Node ParseBlock(){
         CommandBlock node = new CommandBlock();
         if(tokens.Current.Type == TokenTypes.LBRACE){
@@ -196,7 +206,7 @@ static class Parser {
 
     public static Node Run(string code){
         tokens = new Tokenizer(code, true);
-        Node root = ParseBlock();
+        Node root = ParseProgram();
         if(tokens.Current.Type != TokenTypes.EOF){
             throw new RaulException($"Expected EOF at pos {tokens.Position}");
         }

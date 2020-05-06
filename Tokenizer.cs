@@ -101,7 +101,26 @@ class Tokenizer {
                 position++;
                 return;
             }
+            case '?':{
+                if((cursor+1) != origin.Length && origin[cursor+1] == '>'){
+                    current = new Token(TokenTypes.END_PROG, 0);
+                    position+=2;
+                    return;
+                }else{
+                    throw new RaulException($"Expected '>' at pos {cursor+1}");
+                }
+            }
             case '<':{
+                if((cursor+1) != origin.Length && origin[cursor+1] == '?'){
+                    //Match <?php
+                    if(cursor+4 < origin.Length){
+                        if(origin.Substring(cursor,5).Equals(@"<?php")){
+                            current = new Token(TokenTypes.START_PROG,0);
+                            position += 5;
+                            return;
+                        }
+                    }
+                }
                 current = new Token(TokenTypes.LESS, 0);
                 position++;
                 return;

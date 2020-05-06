@@ -19,6 +19,8 @@ public enum TokenTypes{
     NOT,
     GREATER,
     LESS,
+    START_PROG,
+    END_PROG,
     EOF
 }
 
