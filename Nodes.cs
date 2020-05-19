@@ -34,7 +34,7 @@ class IfNode: Node{
     }
 
     public override dynamic Evaluate(SymbolTable st){
-        if(children[0].Evaluate(st).Value){
+        if(Convert.ToBoolean(children[0].Evaluate(st).Value)){
             children[1].Evaluate(st);
         }else if(children.Count == 3){
             children[2].Evaluate(st);
@@ -50,7 +50,7 @@ class WhileNode: Node{
     }
 
     public override dynamic Evaluate(SymbolTable st){
-        while(children[0].Evaluate(st).Value){
+        while(Convert.ToBoolean(children[0].Evaluate(st).Value)){
             children[1].Evaluate(st);
         }
         return null;

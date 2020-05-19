@@ -7,9 +7,13 @@ static class Parser {
         Node node;
         if(tokens.Current.Type != TokenTypes.START_PROG) throw new RaulException($"Expected '<?php' at {tokens.Position}");
         tokens.SelectNext();
-        node = ParseCommand();  
-        if(tokens.Current.Type != TokenTypes.END_PROG) throw new RaulException($"Expected '?> at {tokens.Position}");
-        tokens.SelectNext();
+        if(tokens.Current.Type != TokenTypes.END_PROG){
+            node = ParseCommand(); 
+            tokens.SelectNext();
+        }else{
+            node = new CommandBlock();
+            tokens.SelectNext();
+        }
         return node;
     }
     static Node ParseBlock(){
@@ -231,7 +235,7 @@ static class Parser {
         tokens = new Tokenizer(code, true);
         Node root = ParseProgram();
         if(tokens.Current.Type != TokenTypes.EOF){
-            throw new RaulException($"Expected EOF at pos {tokens.Position}");
+            throw new RaulException($"Expected EOF at pos {tokens.Position}, found {tokens.Current.Type}");
         }
         return root;
     }
