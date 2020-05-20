@@ -3,21 +3,21 @@ using System;
 static class Parser {
     static Tokenizer tokens;
 
+    static int nodeId = 0;
+
     static Node ParseProgram(){
-        Node node;
+        CommandBlock node = new CommandBlock(nodeId++);
+
         if(tokens.Current.Type != TokenTypes.START_PROG) throw new RaulException($"Expected '<?php' at {tokens.Position}");
         tokens.SelectNext();
-        if(tokens.Current.Type != TokenTypes.END_PROG){
-            node = ParseCommand(); 
-            tokens.SelectNext();
-        }else{
-            node = new CommandBlock();
-            tokens.SelectNext();
+        while(tokens.Current.Type != TokenTypes.END_PROG){
+            node.AddChild(ParseCommand()); 
         }
+        tokens.SelectNext();
         return node;
     }
     static Node ParseBlock(){
-        CommandBlock node = new CommandBlock();
+        CommandBlock node = new CommandBlock(nodeId++);
         if(tokens.Current.Type == TokenTypes.LBRACE){
             tokens.SelectNext();
             while(tokens.Current.Type != TokenTypes.RBRACE){
@@ -34,20 +34,20 @@ static class Parser {
         Node node;
         switch(tokens.Current.Type){
             case TokenTypes.IDEN:{
-                node = new Identifier(tokens.Current.Value);
+                node = new Identifier(nodeId++,tokens.Current.Value);
                 tokens.SelectNext();
                 if(tokens.Current.Type != TokenTypes.EQUAL){
                     throw new RaulException($"Expected '=' after Identifier at {tokens.Position}");
                 }
                 tokens.SelectNext();
-                node = new Assignment(node,ParseRelExpression());
+                node = new Assignment(nodeId++,node,ParseRelExpression());
                 break;
             }
             case TokenTypes.KEYWORD:{
                switch(tokens.Current.Value){
                    case Keywords.ECHO:{
                        tokens.SelectNext();
-                       node = new Echo(ParseRelExpression());
+                       node = new Echo(nodeId++,ParseRelExpression());
                        break;
                    }
                    case Keywords.WHILE:{
@@ -57,7 +57,7 @@ static class Parser {
                        Node condition = ParseRelExpression();
                        if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' after WHILE stmnt at {tokens.Position}");
                        tokens.SelectNext();
-                       node = new WhileNode(condition,ParseCommand());
+                       node = new WhileNode(nodeId++,condition,ParseCommand());
                        return node;
                    }
                    case Keywords.IF:{
@@ -70,9 +70,9 @@ static class Parser {
                        Node cond_true = ParseCommand();
                        if(tokens.Current.Type == TokenTypes.KEYWORD && tokens.Current.Value == Keywords.ELSE){
                            tokens.SelectNext();
-                           node = new IfNode(condition,cond_true, ParseCommand());
+                           node = new IfNode(nodeId++,condition,cond_true, ParseCommand());
                        }else{
-                           node = new IfNode(condition,cond_true);
+                           node = new IfNode(nodeId++,condition,cond_true);
                        }
                        return node;
                    }
@@ -105,7 +105,7 @@ static class Parser {
             string relation = tokens.Current.Type.ToString();
             tokens.SelectNext();
             N2 = ParseExpression();
-            res = new BinOp(relation, res, N2);
+            res = new BinOp(nodeId++,relation, res, N2);
         }
         return res;
     }
@@ -116,30 +116,28 @@ static class Parser {
             case TokenTypes.INT:{
                 value = tokens.Current.Value;
                 tokens.SelectNext();
-                return new IntVal(value);
+                return new IntVal(nodeId++,value);
             }
             case TokenTypes.STRING:{
-                value = tokens.Current.Value;
-                tokens.SelectNext();
-                return new StrVal(value);
+                throw new RaulException($"String type is not supported.");
             }
             case TokenTypes.PLUS:{
                 tokens.SelectNext();
                 node = ParseFactor();
-                return new UnOp('+', node);
+                return new UnOp(nodeId++,'+', node);
             }
             case TokenTypes.MINUS:{
                 tokens.SelectNext();
                 node = ParseFactor();
-                return new UnOp('-', node);
+                return new UnOp(nodeId++,'-', node);
             }
             case TokenTypes.NOT:{
                 tokens.SelectNext();
                 node = ParseFactor();
-                return new UnOp('!', node);
+                return new UnOp(nodeId++,'!', node);
             }
             case TokenTypes.IDEN:{
-                node = new Identifier(tokens.Current.Value);
+                node = new Identifier(nodeId++,tokens.Current.Value);
                 tokens.SelectNext();
                 return node;
             }
@@ -155,21 +153,15 @@ static class Parser {
             case TokenTypes.KEYWORD:{
                 switch(tokens.Current.Value){
                     case Keywords.READLINE:{
-                        node = new ReadLineNode();
-                        tokens.SelectNext();
-                        if(tokens.Current.Type != TokenTypes.LPAR) throw new RaulException($"Expected '(' at pos {tokens.Position}");
-                        tokens.SelectNext();
-                        if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' at pos {tokens.Position}");
-                        tokens.SelectNext();
-                        return node;
+                        throw new RaulException($"Readline command is not supported");
                     }
                     case Keywords.TRUE:{
-                        node = new BoolVal(true);
+                        node = new BoolVal(nodeId++,true);
                         tokens.SelectNext();
                         return node;
                     }
                     case Keywords.FALSE:{
-                        node = new BoolVal(false);
+                        node = new BoolVal(nodeId++,false);
                         tokens.SelectNext();
                         return node;
                     } 
@@ -191,16 +183,16 @@ static class Parser {
             if(tokens.Current.Type == TokenTypes.STAR){
                 tokens.SelectNext();
                 N2 = ParseFactor();
-                res = new BinOp('*', res, N2);
+                res = new BinOp(nodeId++,'*', res, N2);
             }else if(tokens.Current.Type == TokenTypes.SLASH){
                 tokens.SelectNext();
                 N2 = ParseFactor();
-                res = new BinOp('/', res, N2);
+                res = new BinOp(nodeId++,'/', res, N2);
             }else if(tokens.Current.Type == TokenTypes.KEYWORD){
                 if(tokens.Current.Value != Keywords.AND) throw new RaulException($"Unexpected KEYWORD at pos {tokens.Position}");
                 tokens.SelectNext();
                 N2 = ParseFactor();
-                res = new BinOp("AND", res, N2);
+                res = new BinOp(nodeId++,"AND", res, N2);
             }
         }
         return res;
@@ -212,20 +204,20 @@ static class Parser {
             if(tokens.Current.Type == TokenTypes.PLUS){
                 tokens.SelectNext();
                 N2 = ParseTerm();
-                res = new BinOp('+', res, N2);
+                res = new BinOp(nodeId++,'+', res, N2);
             }else if(tokens.Current.Type == TokenTypes.MINUS){
                 tokens.SelectNext();
                 N2 = ParseTerm();
-                res = new BinOp('-', res, N2);
+                res = new BinOp(nodeId++,'-', res, N2);
             }else if(tokens.Current.Type == TokenTypes.DOT){
                 tokens.SelectNext();
                 N2 = ParseTerm();
-                res = new BinOp('.', res, N2);
+                res = new BinOp(nodeId++,'.', res, N2);
             }else if(tokens.Current.Type == TokenTypes.KEYWORD){
                 if(tokens.Current.Value != Keywords.OR) throw new RaulException($"Unexpected KEYWORD at pos {tokens.Position}");
                 tokens.SelectNext();
                 N2 = ParseFactor();
-                res = new BinOp("OR", res, N2);
+                res = new BinOp(nodeId++,"OR", res, N2);
             }
         }
         return res;

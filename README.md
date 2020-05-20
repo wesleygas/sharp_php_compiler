@@ -8,7 +8,7 @@ Para utilizar o compilador, passe a string como parâmetro único para o execut�
 
 '''
 
-PROGRAM : '<?php' \[COMMAND\] '?>'
+PROGRAM : '<?php' {COMMAND} '?>'
 BLOCK : '{' {COMMAND} '}'
 
 COMMAND : (\[ ((IDENT '=' | 'echo') RELEX)\] ';') | (BLOCK | 'while' '(' RELEX ')' COMMAND | 'if' '(' RELEX ')' COMMAND [ 'else' COMMAND ])

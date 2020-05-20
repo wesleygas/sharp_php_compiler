@@ -1,10 +1,7 @@
 <?php
-{
-    $x = 1;
-    $y = $x or True;
-    $z = "x: ";
-    echo $x + $y;
-    echo $z . $x;
-    echo $x * $z; /* ERROR */
-}
+ $x = 16;
+ while($x > 0){
+     echo $x;
+     $x = $x/2;
+ }
 ?>
