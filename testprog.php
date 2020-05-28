@@ -1,10 +1,12 @@
 <?php
 {
-    $x = 1;
-    $y = $x or True;
-    $z = "x: ";
-    echo $x + $y;
-    echo $z . $x;
-    echo $x * $z; /* ERROR */
+    function fib($a){
+        if($a < 2){
+            return $a;
+        }else{
+            return fib($a-1)+fib($a-2);
+        }        
+    }
+    echo fib(6);
 }
 ?>

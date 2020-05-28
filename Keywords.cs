@@ -11,4 +11,6 @@ public enum Keywords{
     READLINE,
     TRUE,
     FALSE,
+    FUNCTION,
+    RETURN,
 }

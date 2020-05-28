@@ -18,6 +18,28 @@ class Symbol{
     public dynamic Value { get => value; set => this.value = value; }
 }
 
+static class FuncTable
+{
+    private static Dictionary<string,dynamic> table = new Dictionary<string,dynamic>();
+
+    public static dynamic Get(string name){
+        dynamic valor; 
+        if(table.TryGetValue(name, out valor)){
+            return valor;
+        }else{
+            throw new RaulException($"Function '{name}' is not defined");
+        }
+    }
+
+    public static void Set(string name, dynamic value){
+        if(table.ContainsKey(name)){
+            throw new RaulException($"Function '{name}' has already been defined");
+        }
+        table.Add(name, value);
+    }
+
+}
+
 class SymbolTable
 {
     private Dictionary<string,Symbol> table = new Dictionary<string,Symbol>();
@@ -36,5 +58,9 @@ class SymbolTable
             table.Remove(name);
         }
         table.Add(name, value);
+    }
+
+    public bool Contains(string name){
+        return table.ContainsKey(name);
     }
 }

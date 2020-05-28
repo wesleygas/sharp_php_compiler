@@ -76,6 +76,11 @@ class Tokenizer {
                 position++;
                 return;
             }
+            case ',':{
+                current = new Token(TokenTypes.COMMA, 0);
+                position++;
+                return;
+            }
             case ';':{
                 current = new Token(TokenTypes.SEMI, 0);
                 position++;
@@ -156,9 +161,11 @@ class Tokenizer {
                     string cache = rg.Match(origin,cursor).Value;
                     Keywords  kword;
                     if(!Enum.TryParse(cache,true, out kword)){
-                        throw new RaulException($"'{cache}' is not defined");
+                        current = new Token(TokenTypes.FUNCNAME, cache);
+                    }else{
+                        current = new Token(TokenTypes.KEYWORD, kword);
                     }
-                    current = new Token(TokenTypes.KEYWORD, kword);
+                    
                     position+=cache.Length;
                 }
                 else{

@@ -17,6 +17,8 @@ class CommandBlock: Node {
     public override dynamic Evaluate(SymbolTable st){
         foreach(dynamic child in children){
             child.Evaluate(st);
+            if(st.Contains("return")) return st.Get("return");
+            
         }
         return null;
     }
@@ -56,6 +58,55 @@ class WhileNode: Node{
         return null;
     }
 
+}
+
+class FuncDef: Node{
+    public FuncDef(string name){
+        this.value = name;
+    }
+    public void AddChild(Node child){
+        children.Add(child);
+    }
+    public override dynamic Evaluate(SymbolTable st){
+        FuncTable.Set(this.value, children);
+        return "";
+    }
+}
+
+class FuncCall: Node{
+    public FuncCall(string name){
+        this.value = name;
+    }
+    public void AddChild(Node child){
+        children.Add(child);
+    }
+    
+    public override dynamic Evaluate(SymbolTable st){
+        List<dynamic> defChilds = FuncTable.Get(this.value);
+        if(defChilds.Count-1 != children.Count){
+            throw new Exception($"{this.value} takes exactly {defChilds.Count-1} arguments but {children.Count} were given.");
+        }
+        SymbolTable innerTable = new SymbolTable();
+        for(int i = 0; i < defChilds.Count-1; i++){
+            Symbol symbol = children[i].Evaluate(st);
+            innerTable.Set(defChilds[i].value, symbol);
+        }
+
+        return defChilds[defChilds.Count-1].Evaluate(innerTable);
+    }
+}
+
+class Return: Node{
+    public Return(dynamic value){
+        this.value = value;
+    }
+
+
+
+    public override dynamic Evaluate(SymbolTable st){
+        st.Set("return",value.Evaluate(st));
+        return "";
+    }
 }
 
 class Identifier: Node{

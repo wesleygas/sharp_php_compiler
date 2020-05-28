@@ -1,8 +1,16 @@
 using System;
+using System.Collections.Generic;
 
 static class Parser {
     static Tokenizer tokens;
 
+    static void ParseArgs(FuncCall funcCall){
+        funcCall.AddChild(ParseRelExpression());
+        while(tokens.Current.Type == TokenTypes.COMMA){
+            tokens.SelectNext();
+            funcCall.AddChild(ParseRelExpression());
+        }
+    }
     static Node ParseProgram(){
         Node node;
         if(tokens.Current.Type != TokenTypes.START_PROG) throw new RaulException($"Expected '<?php' at {tokens.Position}");
@@ -43,51 +51,101 @@ static class Parser {
                 node = new Assignment(node,ParseRelExpression());
                 break;
             }
+            case TokenTypes.FUNCNAME:{ //Chamada de funcao SEM return
+                FuncCall funcCall = new FuncCall(tokens.Current.Value);
+                tokens.SelectNext();
+                if(tokens.Current.Type != TokenTypes.LPAR) throw new RaulException($"Expected '(' at pos {tokens.Position}");
+                tokens.SelectNext();
+                
+                if(tokens.Current.Type == TokenTypes.RPAR){
+                    tokens.SelectNext();
+                }else{
+                    ParseArgs(funcCall);
+                    if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' at pos {tokens.Position}");
+                    tokens.SelectNext();
+                }
+                node = funcCall;
+                break;
+                
+            }
             case TokenTypes.KEYWORD:{
-               switch(tokens.Current.Value){
-                   case Keywords.ECHO:{
-                       tokens.SelectNext();
-                       node = new Echo(ParseRelExpression());
-                       break;
-                   }
-                   case Keywords.WHILE:{
-                       tokens.SelectNext();
-                       if(tokens.Current.Type != TokenTypes.LPAR) throw new RaulException($"Expected '(' after WHILE stmnt at {tokens.Position}");
-                       tokens.SelectNext();
-                       Node condition = ParseRelExpression();
-                       if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' after WHILE stmnt at {tokens.Position}");
-                       tokens.SelectNext();
-                       node = new WhileNode(condition,ParseCommand());
-                       return node;
-                   }
-                   case Keywords.IF:{
-                       tokens.SelectNext();
-                       if(tokens.Current.Type != TokenTypes.LPAR) throw new RaulException($"Expected '(' after IF stmnt at {tokens.Position}");
-                       tokens.SelectNext();
-                       Node condition = ParseRelExpression();
-                       if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' after IF stmnt at {tokens.Position}");
-                       tokens.SelectNext();
-                       Node cond_true = ParseCommand();
-                       if(tokens.Current.Type == TokenTypes.KEYWORD && tokens.Current.Value == Keywords.ELSE){
-                           tokens.SelectNext();
-                           node = new IfNode(condition,cond_true, ParseCommand());
-                       }else{
-                           node = new IfNode(condition,cond_true);
-                       }
-                       return node;
-                   }
-                   default:{
-                       throw new RaulException($"Hum... Nao era pra esse erro ser possivel...");
-                   }
-               }
-               break;
+                switch(tokens.Current.Value){
+                    case Keywords.ECHO:{
+                        tokens.SelectNext();
+                        node = new Echo(ParseRelExpression());
+                        break;
+                    }
+                    case Keywords.WHILE:{
+                        tokens.SelectNext();
+                        if(tokens.Current.Type != TokenTypes.LPAR) throw new RaulException($"Expected '(' after WHILE stmnt at {tokens.Position}");
+                        tokens.SelectNext();
+                        Node condition = ParseRelExpression();
+                        if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' after WHILE stmnt at {tokens.Position}");
+                        tokens.SelectNext();
+                        node = new WhileNode(condition,ParseCommand());
+                        return node;
+                    }
+                    case Keywords.IF:{
+                        tokens.SelectNext();
+                        if(tokens.Current.Type != TokenTypes.LPAR) throw new RaulException($"Expected '(' after IF stmnt at {tokens.Position}");
+                        tokens.SelectNext();
+                        Node condition = ParseRelExpression();
+                        if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' after IF stmnt at {tokens.Position}");
+                        tokens.SelectNext();
+                        Node cond_true = ParseCommand();
+                        if(tokens.Current.Type == TokenTypes.KEYWORD && tokens.Current.Value == Keywords.ELSE){
+                            tokens.SelectNext();
+                            node = new IfNode(condition,cond_true, ParseCommand());
+                        }else{
+                            node = new IfNode(condition,cond_true);
+                        }
+                        return node;
+                    }
+                    case Keywords.RETURN:{
+                        tokens.SelectNext();
+                        node = new Return(ParseRelExpression());
+                        break;
+                    }
+                    case Keywords.FUNCTION:{
+                        tokens.SelectNext();
+                        if(tokens.Current.Type != TokenTypes.FUNCNAME) throw new RaulException($"Expected function name at {tokens.Position}");
+                        FuncDef funcDef = new FuncDef(tokens.Current.Value);
+                        tokens.SelectNext();
+                        if(tokens.Current.Type != TokenTypes.LPAR) throw new RaulException($"Expected '(' after function name at {tokens.Position}");
+                        tokens.SelectNext();
+                        if(tokens.Current.Type == TokenTypes.RPAR){
+                            tokens.SelectNext();
+                        }else{
+                            if(tokens.Current.Type == TokenTypes.IDEN){
+                                funcDef.AddChild(new Identifier(tokens.Current.Value));
+                                tokens.SelectNext();
+                            }
+                            while(tokens.Current.Type == TokenTypes.COMMA){
+                                tokens.SelectNext();
+                                if(tokens.Current.Type == TokenTypes.IDEN){
+                                    funcDef.AddChild(new Identifier(tokens.Current.Value));
+                                    tokens.SelectNext();
+                                }
+                            }
+                            if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' after identifier at {tokens.Position}");
+                            tokens.SelectNext();
+                        }
+                        funcDef.AddChild(ParseBlock());
+
+                        return funcDef;
+                    }
+                    default:{
+                        throw new RaulException($"Hum... Nao era pra esse erro ser possivel...");
+                    }
+                }
+                break;
             }
             case TokenTypes.LBRACE:{
                 node = ParseBlock();
                 return node;
             }
             default:{
-                throw new RaulException($"Unexpected symbol at {tokens.Position}");
+                throw new RaulException($"Unexpected symbol '{tokens.Current.Type}' at {tokens.Position}");
             }
         }
         if(tokens.Current.Type == TokenTypes.SEMI) {
@@ -142,6 +200,21 @@ static class Parser {
                 node = new Identifier(tokens.Current.Value);
                 tokens.SelectNext();
                 return node;
+            }
+            case TokenTypes.FUNCNAME:{ //Chamada de funcao com return
+                FuncCall funcCall = new FuncCall(tokens.Current.Value);
+                tokens.SelectNext();
+                if(tokens.Current.Type != TokenTypes.LPAR) throw new RaulException($"Expected '(' at pos {tokens.Position}");
+                tokens.SelectNext();
+                
+                if(tokens.Current.Type == TokenTypes.RPAR){
+                    tokens.SelectNext();
+                }else{
+                    ParseArgs(funcCall);
+                    if(tokens.Current.Type != TokenTypes.RPAR) throw new RaulException($"Expected ')' at pos {tokens.Position}");
+                    tokens.SelectNext();
+                }
+                return funcCall;
             }
             case TokenTypes.LPAR:{
                 tokens.SelectNext();
