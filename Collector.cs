@@ -15,4 +15,12 @@ static class Collector{
 
         return header + "\n\t" + String.Join("\n\t", commands) + "\n" + footer;
     }
+
+    public static void FileDump(string filename){
+        string header = File.ReadAllText("header.asm");
+        string footer = File.ReadAllText("footer.asm");
+        string content = header + "\n\t" + String.Join("\n\t", commands) + "\n" + footer;
+        File.WriteAllText(filename,content);
+    }
+
 }

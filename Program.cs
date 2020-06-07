@@ -19,7 +19,7 @@ namespace compylador
             //string alo = root.Evaluate(st);
             //Console.WriteLine(alo);
             root.AsmEvaluate(st);
-            Console.WriteLine(Collector.Dump());
+            Collector.FileDump("output.asm");
             return 0;
         }
     }
