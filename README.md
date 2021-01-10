@@ -1,6 +1,8 @@
-#### compylador
+#### sharp_php_compiler
 
-Para utilizar o compilador, passe a string como parâmetro único para o executável  executaveis/{windows|linux}/compylador.exe
+Esse é um compilador mínimo de PHP escrito em C#, suportando instruções básicas (aritméticas, lógicas, branches e loops). 
+
+Para utilizar o compilador, passe o nome do arquivo a ser lido como parâmetro único para o executável  executaveis/{windows|linux}/compylador.exe
 
 ![Diagrama_Sintatico](diagrama_sintatico/ds.png)
 
