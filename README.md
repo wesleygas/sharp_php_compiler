@@ -2,6 +2,8 @@
 
 Esse é um compilador mínimo de PHP escrito em C#, suportando instruções básicas (aritméticas, lógicas, branches e loops). 
 
+O código na branch master implementa um interpretador, enquanto a branch `asm` tem instruções para compilar e fazer o link em um executável. 
+
 Para utilizar o compilador, passe o nome do arquivo a ser lido como parâmetro único para o executável  executaveis/{windows|linux}/compylador.exe
 
 ![Diagrama_Sintatico](diagrama_sintatico/ds.png)
