@@ -1,6 +1,16 @@
 #### compylador
 
-Para utilizar o compilador, passe a string como parâmetro único para o executável  executaveis/{windows|linux}/compylador.exe
+Para utilizar o compilador, passe o arquivo contendo o código php como parâmetro único para o executável  executaveis/{windows|linux}/compylador.exe
+
+Para executar sem compilar, é necessário ter configurado o ambiente dotnet e executar o seguinte comando (usando o script testprog.php como exemplo):
+
+```bash
+dotnet run testprog.php
+```
+
+A saída será um arquivo de nome `output.asm`.
+
+O script `aslink.sh` utilizará o .asm para gerar um executável 32-bits.
 
 ![Diagrama_Sintatico](diagrama_sintatico/ds.png)
 
